@@ -3,7 +3,7 @@ from flask_restful import Resource, abort
 from werkzeug.security import generate_password_hash
 from __all_models import *
 from db_session import *
-from request_parser import parser
+from request_parser import users_parser
 
 
 global_init("db.db")
@@ -26,7 +26,7 @@ class UsersResource(Resource):
         })
 
     def put(self, user_id):
-        args = parser.parser_args(strict=True)
+        args = users_parser.parse_args(strict=True)
         if not args:
             return jsonify({'error': 'Empty request'})
         user = get_user_or_404(user_id)
@@ -36,7 +36,7 @@ class UsersResource(Resource):
         return jsonify({'success': 'OK'})
 
     def delete(self, user_id):
-        args = parser.parse_args(strict=True)
+        args = users_parser.parse_args(strict=True)
         if not args:
             return jsonify({'error': 'Empty request'})
         user = get_user_or_404(user_id)
@@ -53,10 +53,9 @@ class UsersListResource(Resource):
         })
 
     def post(self):
-        args = parser.parse_args(strict=True)
+        args = users_parser.parse_args(strict=True)
         if not args:
             return jsonify({'error': 'Empty request'})
-        args = parser.parse_args()
         args["hashed_password"] = generate_password_hash(args.pop("password"))
         user = User(**args)
         session.add(user)
